@@ -425,7 +425,7 @@ try {
             visibility: visible;
             
             transform: none;
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
             outline-offset: 0px;
             box-sizing: border-box;
@@ -433,7 +433,7 @@ try {
             text-shadow: none;
             text-overflow: clip;
             word-wrap: break-word;
-            box-shadow: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             border-top-left-radius: 3px;
             border-top-right-radius: 3px;
             border-bottom-left-radius: 3px;
@@ -442,6 +442,115 @@ try {
         .btn-icon:hover {
             background-color: rgb(175, 169, 169);
             border-color: rgb(175, 169, 169);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-icon:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.1s ease;
+        }
+
+        /* Refresh button specific animation */
+        .btn-icon#refreshBtn:hover .fa-sync {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Columns button specific animation */
+        .btn-icon#viewBtn:hover .fa-th-list {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-3px); }
+            60% { transform: translateY(-2px); }
+        }
+
+        /* Export button specific animation */
+        .btn-icon#exportBtn:hover .fa-download {
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Dropdown arrow animation */
+        .btn-icon:hover .dropdown-arrow {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        /* View Modal Form Styling */
+        .view-form {
+            padding: 0;
+        }
+
+        .view-form .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .view-form .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .view-form .form-group:only-child {
+            flex: none;
+            width: 100%;
+        }
+
+        .view-form label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-display {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #374151;
+            min-height: 20px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .form-display .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .form-display .status-badge.yes {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .form-display .status-badge.no {
+            background-color: #ef4444;
+            color: white;
         }
 
         /* Button Icon Styling */
@@ -656,6 +765,12 @@ try {
             margin-top: 16px;
         }
 
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
         .nav-tabs {
             display: flex;
             align-items: center;
@@ -676,6 +791,86 @@ try {
         .nav-separator {
             color: #d1d5db;
             font-size: 14px;
+        }
+
+        /* Edit Modal Specific Styles */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .radio-label {
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-input {
+            flex: 1;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .file-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-display {
+            flex: 1;
+            background-color: #f9fafb;
+            cursor: not-allowed;
+        }
+
+        .btn-upload {
+            background-color: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-upload:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-close {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background-color: #4b5563;
         }
         .data-table {
             width: 100%;
@@ -1607,97 +1802,99 @@ try {
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                         </select>
-                        <div class="search-bar">
-                            <input type="text" class="search-input" placeholder="Search">
-                        </div>
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="Search">
                     </div>
+                    </div>
+                    <div class="right-section">
                     <div class="toolbar-actions">
-                        <button class="btn-icon" title="Refresh">
-                            <i class="fa fa-sync"></i>
+                            <button class="btn-icon" title="Refresh" id="refreshBtn">
+                                <i class="fa fa-sync"></i>
                         </button>
-                        <div class="view-dropdown">
-                            <button class="btn-icon view-btn" title="View Options" id="viewBtn">
-                                <i class="fa fa-th-list"></i>
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
-                                    <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <div class="view-menu" id="viewMenu">
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-id" class="column-checkbox" checked>
-                                    <label for="col-id">ID</label>
+                            <div class="view-dropdown">
+                                <button class="btn-icon view-btn" title="View Options" id="viewBtn">
+                                    <i class="fa fa-th-list"></i>
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
+                                        <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                                <div class="view-menu" id="viewMenu">
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-id" class="column-checkbox" checked>
+                                        <label for="col-id">ID</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-cluster" class="column-checkbox" checked>
+                                        <label for="col-cluster">Cluster</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-theme" class="column-checkbox" checked>
+                                        <label for="col-theme">Theme</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-sub-theme" class="column-checkbox" checked>
+                                        <label for="col-sub-theme">Sub-Theme</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-topic" class="column-checkbox" checked>
+                                        <label for="col-topic">Topic</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-year" class="column-checkbox" checked>
+                                        <label for="col-year">Year</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-duration" class="column-checkbox" checked>
+                                        <label for="col-duration">Duration</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-instructional-design" class="column-checkbox" checked>
+                                        <label for="col-instructional-design">Instructional Design</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-technology-integration" class="column-checkbox" checked>
+                                        <label for="col-technology-integration">Technology Integration</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-approach" class="column-checkbox" checked>
+                                        <label for="col-approach">Approach</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-method" class="column-checkbox" checked>
+                                        <label for="col-method">Method</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-parental-involvement" class="column-checkbox" checked>
+                                        <label for="col-parental-involvement">Parental Involvement</label>
+                                    </div>
+                                    <div class="column-filter-item">
+                                        <input type="checkbox" id="col-actions" class="column-checkbox" checked>
+                                        <label for="col-actions">Actions</label>
+                                    </div>
                                 </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-cluster" class="column-checkbox" checked>
-                                    <label for="col-cluster">Cluster</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-theme" class="column-checkbox" checked>
-                                    <label for="col-theme">Theme</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-sub-theme" class="column-checkbox" checked>
-                                    <label for="col-sub-theme">Sub-Theme</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-topic" class="column-checkbox" checked>
-                                    <label for="col-topic">Topic</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-year" class="column-checkbox" checked>
-                                    <label for="col-year">Year</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-duration" class="column-checkbox" checked>
-                                    <label for="col-duration">Duration</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-instructional-design" class="column-checkbox" checked>
-                                    <label for="col-instructional-design">Instructional Design</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-technology-integration" class="column-checkbox" checked>
-                                    <label for="col-technology-integration">Technology Integration</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-approach" class="column-checkbox" checked>
-                                    <label for="col-approach">Approach</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-method" class="column-checkbox" checked>
-                                    <label for="col-method">Method</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-parental-involvement" class="column-checkbox" checked>
-                                    <label for="col-parental-involvement">Parental Involvement</label>
-                                </div>
-                                <div class="column-filter-item">
-                                    <input type="checkbox" id="col-actions" class="column-checkbox" checked>
-                                    <label for="col-actions">Actions</label>
+                            </div>
+                            <div class="export-dropdown">
+                                <button class="btn-icon export-btn" title="Export" id="exportBtn">
+                                    <i class="fa fa-download"></i>
+                                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
+                                        <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                                <div class="export-menu" id="exportMenu">
+                                    <div class="export-option" data-format="json">JSON</div>
+                                    <div class="export-option" data-format="xml">XML</div>
+                                    <div class="export-option" data-format="csv">CSV</div>
+                                    <div class="export-option" data-format="txt">TXT</div>
+                                    <div class="export-option" data-format="sql">SQL</div>
+                                    <div class="export-option" data-format="excel">MS-Excel</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="export-dropdown">
-                            <button class="btn-icon export-btn" title="Export" id="exportBtn">
-                                <i class="fa fa-download"></i>
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
-                                    <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </button>
-                            <div class="export-menu" id="exportMenu">
-                                <div class="export-option" data-format="json">JSON</div>
-                                <div class="export-option" data-format="xml">XML</div>
-                                <div class="export-option" data-format="csv">CSV</div>
-                                <div class="export-option" data-format="txt">TXT</div>
-                                <div class="export-option" data-format="sql">SQL</div>
-                                <div class="export-option" data-format="excel">MS-Excel</div>
-                            </div>
+                        <div class="nav-tabs">
+                            <a href="#" class="nav-tab active">All</a>
+                            <span class="nav-separator">|</span>
+                            <a href="#" class="nav-tab">Trashed</a>
                         </div>
-                    </div>
-                    <div class="nav-tabs">
-                        <a href="#" class="nav-tab active">All</a>
-                        <span class="nav-separator">|</span>
-                        <a href="#" class="nav-tab">Trashed</a>
                     </div>
                 </div>
             </div>
@@ -1814,7 +2011,7 @@ try {
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Edit Lesson Plan</h2>
+                <h2 class="modal-title">Edit Subject</h2>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
@@ -1834,8 +2031,8 @@ try {
                 <div class="warning-icon">
                     <div class="warning-circle">
                         <span class="warning-exclamation">!</span>
-                    </div>
-                </div>
+            </div>
+            </div>
                 
                 <!-- Text Content -->
                 <h3 class="delete-modal-title">Are you sure?</h3>
@@ -1917,6 +2114,174 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     document.getElementById('cancelDelete').addEventListener('click', () => closeModal(deleteModal));
+
+    // Refresh button functionality
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Remove URL parameters to prevent showing success/error messages
+            const url = new URL(window.location);
+            url.search = '';
+            window.location.href = url.toString();
+        });
+    }
+
+    // Filter dropdown functionality
+    const filterDropdown = document.querySelector('.filter-dropdown');
+    if (filterDropdown) {
+        filterDropdown.addEventListener('change', function(e) {
+            const selectedValue = e.target.value;
+            filterTableData(selectedValue);
+        });
+    }
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            searchTableData(searchTerm);
+        });
+    }
+
+    // Search table data function
+    function searchTableData(searchTerm) {
+        const table = document.querySelector('.data-table');
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            let shouldShow = true;
+            
+            if (searchTerm.trim() !== '') {
+                const cells = row.querySelectorAll('td');
+                let found = false;
+                
+                cells.forEach(cell => {
+                    const cellText = cell.textContent.toLowerCase();
+                    if (cellText.includes(searchTerm)) {
+                        found = true;
+                    }
+                });
+                
+                shouldShow = found;
+            }
+            
+            row.style.display = shouldShow ? '' : 'none';
+        });
+        
+        // Update empty state if no rows are visible
+        updateEmptyState();
+    }
+
+    // Filter table data function
+    function filterTableData(filterValue) {
+        const table = document.querySelector('.data-table');
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            let shouldShow = true;
+            
+            switch(filterValue) {
+                case 'all':
+                    shouldShow = true;
+                    break;
+                case 'active':
+                    // Show rows where Parental Involvement is "Yes" or has active status
+                    const parentalInvolvement = row.querySelector('td:nth-child(12)');
+                    if (parentalInvolvement) {
+                        const statusText = parentalInvolvement.textContent.trim();
+                        shouldShow = statusText === 'Yes';
+                    }
+                    break;
+                case 'inactive':
+                    // Show rows where Parental Involvement is "No" or has inactive status
+                    const parentalInvolvementInactive = row.querySelector('td:nth-child(12)');
+                    if (parentalInvolvementInactive) {
+                        const statusText = parentalInvolvementInactive.textContent.trim();
+                        shouldShow = statusText === 'No';
+                    }
+                    break;
+            }
+            
+            row.style.display = shouldShow ? '' : 'none';
+        });
+        
+        // Update empty state if no rows are visible
+        updateEmptyState();
+    }
+
+    // Update empty state function
+    function updateEmptyState() {
+        const table = document.querySelector('.data-table');
+        const emptyState = document.querySelector('.empty-state');
+        
+        if (!table || !emptyState) return;
+        
+        const visibleRows = table.querySelectorAll('tbody tr:not([style*="display: none"])');
+        
+        if (visibleRows.length === 0) {
+            emptyState.style.display = 'block';
+            table.style.display = 'none';
+        } else {
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+        }
+    }
+
+    // Navigation tabs functionality
+    const navTabs = document.querySelectorAll('.nav-tab');
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            navTabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Handle tab switching
+            const tabText = this.textContent.trim();
+            if (tabText === 'All') {
+                showAllRecords();
+            } else if (tabText === 'Trashed') {
+                showTrashedRecords();
+            }
+        });
+    });
+
+    // Show all records function
+    function showAllRecords() {
+        const table = document.querySelector('.data-table');
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.style.display = '';
+        });
+        
+        updateEmptyState();
+    }
+
+    // Show trashed records function (placeholder - you can implement actual trash functionality)
+    function showTrashedRecords() {
+        const table = document.querySelector('.data-table');
+        if (!table) return;
+
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            // For now, hide all records when "Trashed" is selected
+            // You can implement actual trash functionality later
+            row.style.display = 'none';
+        });
+        
+        updateEmptyState();
+    }
 
     // Export dropdown functionality
     const exportBtn = document.getElementById('exportBtn');
@@ -2141,11 +2506,77 @@ document.addEventListener('DOMContentLoaded', function() {
             const planData = JSON.parse(btn.getAttribute('data-plan'));
             const viewBody = viewModal.querySelector('.modal-body');
             
-            let html = '<ul>';
-            for (const key in planData) {
-                html += `<li><strong>${key.replace(/_/g, ' ').replace('(minutes)', ' (minutes)')}:</strong> ${planData[key] || 'N/A'}</li>`;
-            }
-            html += '</ul>';
+            let html = `
+                <div class="view-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Lesson Plan ID</label>
+                            <div class="form-display">${planData.LessonPlan_ID || 'N/A'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cluster</label>
+                            <div class="form-display">${planData.CLUSTER || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <div class="form-display">${planData.THEME || 'N/A'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Sub-Theme</label>
+                            <div class="form-display">${planData.SUB_THEME || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Topic</label>
+                            <div class="form-display">${planData.TOPIC || 'N/A'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Year</label>
+                            <div class="form-display">${planData.YEAR || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Duration (Minutes)</label>
+                            <div class="form-display">${planData['DURATION (minutes)'] || 'N/A'}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Parental Involvement</label>
+                            <div class="form-display">
+                                <span class="status-badge ${planData['PARENTAL INVOLVEMENT'] === 'YES' ? 'yes' : 'no'}">
+                                    ${planData['PARENTAL INVOLVEMENT'] === 'YES' ? 'Yes' : 'No'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Instructional Design</label>
+                        <div class="form-display">${planData['INSTRUCTIONAL DESIGN'] || 'N/A'}</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Technology Integration</label>
+                        <div class="form-display">${planData['TECHNOLOGY INTEGRATION'] || 'N/A'}</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Approach</label>
+                        <div class="form-display">${planData.APPROACH || 'N/A'}</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Method</label>
+                        <div class="form-display">${planData.METHOD || 'N/A'}</div>
+                    </div>
+                </div>
+            `;
             
             viewBody.innerHTML = html;
             openModal(viewModal);
@@ -2164,50 +2595,84 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="hidden" name="LessonPlan_ID" value="${planData.LessonPlan_ID}">
                     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     
-                    <div class="form-row">
-                        <div class="form-column">
+                    
+
+                    <!-- Additional Lesson Plan Fields -->
                             <div class="form-group">
-                                <label>CLUSTER <span class="required">*</span></label>
+                        <label>Cluster <span class="required">*</span></label>
                                 <input type="text" name="CLUSTER" class="form-input" value="${planData.CLUSTER || ''}" required>
                             </div>
+
                             <div class="form-group">
-                                <label>THEME <span class="required">*</span></label>
+                        <label>Theme <span class="required">*</span></label>
                                 <input type="text" name="THEME" class="form-input" value="${planData.THEME || ''}" required>
                             </div>
-                        </div>
-                        <div class="form-column">
+
                             <div class="form-group">
-                                <label>Sub-Theme <span class="required">*</span></label>
+                        <label>Sub-Theme <span class="required">*</span></label>
                                 <input type="text" name="SUB_THEME" class="form-input" value="${planData.SUB_THEME || ''}" required>
                             </div>
+
                             <div class="form-group">
-                                <label>Topic <span class="required">*</span></label>
+                        <label>Topic <span class="required">*</span></label>
                                 <input type="text" name="TOPIC" class="form-input" value="${planData.TOPIC || ''}" required>
                             </div>
-                        </div>
-                        <div class="form-column">
+
                             <div class="form-group">
-                                <label>Year <span class="required">*</span></label>
+                        <label>Year <span class="required">*</span></label>
                                 <select name="YEAR" class="form-input" required>
                                     <option value="">Select Year</option>
-                                    <option value="ONE" ${planData.YEAR === 'ONE' ? 'selected' : ''}>One</option>
-                                    <option value="TWO" ${planData.YEAR === 'TWO' ? 'selected' : ''}>Two</option>
-                                    <option value="THREE" ${planData.YEAR === 'THREE' ? 'selected' : ''}>Three</option>
-                                    <option value="FOUR" ${planData.YEAR === 'FOUR' ? 'selected' : ''}>Four</option>
-                                    <option value="FIVE" ${planData.YEAR === 'FIVE' ? 'selected' : ''}>Five</option>
-                                    <option value="SIX" ${planData.YEAR === 'SIX' ? 'selected' : ''}>Six</option>
+                            <option value="ONE" ${planData.YEAR === 'ONE' ? 'selected' : ''}>One</option>
+                            <option value="TWO" ${planData.YEAR === 'TWO' ? 'selected' : ''}>Two</option>
+                            <option value="THREE" ${planData.YEAR === 'THREE' ? 'selected' : ''}>Three</option>
+                            <option value="FOUR" ${planData.YEAR === 'FOUR' ? 'selected' : ''}>Four</option>
+                            <option value="FIVE" ${planData.YEAR === 'FIVE' ? 'selected' : ''}>Five</option>
+                            <option value="SIX" ${planData.YEAR === 'SIX' ? 'selected' : ''}>Six</option>
                                 </select>
                             </div>
+
                             <div class="form-group">
-                                <label>Duration (Minutes) <span class="required">*</span></label>
-                                <input type="text" name="DURATION" class="form-input" value="${planData['DURATION (minutes)'] || ''}" required>
+                        <label>Duration (Minutes) <span class="required">*</span></label>
+                        <input type="number" name="DURATION" class="form-input" value="${planData['DURATION (minutes)'] || ''}" required>
                             </div>
+
+                    <div class="form-group">
+                        <label>Instructional Design</label>
+                        <input type="text" name="INSTRUCTIONAL_DESIGN" class="form-input" value="${planData['INSTRUCTIONAL DESIGN'] || ''}">
+                        </div>
+
+                    <div class="form-group">
+                        <label>Technology Integration</label>
+                        <input type="text" name="TECHNOLOGY_INTEGRATION" class="form-input" value="${planData['TECHNOLOGY INTEGRATION'] || ''}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Approach</label>
+                        <input type="text" name="APPROACH" class="form-input" value="${planData.APPROACH || ''}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Method</label>
+                        <input type="text" name="METHOD" class="form-input" value="${planData.METHOD || ''}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Parental Involvement</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="PARENTAL_INVOLVEMENT" value="YES" ${planData['PARENTAL INVOLVEMENT'] === 'YES' ? 'checked' : ''}>
+                                <span class="radio-label">Yes</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="PARENTAL_INVOLVEMENT" value="NO" ${planData['PARENTAL INVOLVEMENT'] === 'NO' ? 'checked' : ''}>
+                                <span class="radio-label">No</span>
+                            </label>
                         </div>
                     </div>
                     
                     <div class="button-group">
-                        <button type="button" class="btn btn-reset" onclick="closeModal(editModal)">Cancel</button>
-                        <button type="submit" class="btn btn-submit">Save Changes</button>
+                        <button type="button" class="btn btn-close" onclick="closeModal(editModal)">Close</button>
+                        <button type="submit" class="btn btn-submit">Submit</button>
                     </div>
                 </form>
             `;
@@ -2224,8 +2689,34 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Re-enable after 5 seconds as fallback
                         setTimeout(() => {
                             submitBtn.disabled = false;
-                            submitBtn.textContent = 'Save Changes';
+                            submitBtn.textContent = 'Submit';
                         }, 5000);
+                    }
+                });
+            }
+
+            // Add color preview functionality
+            const colorInput = editForm.querySelector('.color-input');
+            const colorPreview = editForm.querySelector('.color-preview');
+            if (colorInput && colorPreview) {
+                colorInput.addEventListener('input', function() {
+                    colorPreview.style.backgroundColor = this.value;
+                });
+            }
+
+            // Add file upload functionality
+            const uploadBtn = editForm.querySelector('.btn-upload');
+            const fileInput = editForm.querySelector('.file-input');
+            const fileDisplay = editForm.querySelector('.file-display');
+            
+            if (uploadBtn && fileInput && fileDisplay) {
+                uploadBtn.addEventListener('click', function() {
+                    fileInput.click();
+                });
+
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        fileDisplay.value = this.files[0].name;
                     }
                 });
             }

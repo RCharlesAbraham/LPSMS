@@ -34,12 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $topic = $_POST['TOPIC'] ?? '';
         $year = $_POST['YEAR'] ?? '';
         $duration = $_POST['DURATION'] ?? '';
-        $instructional_design = isset($_POST['INSTRUCTIONAL_DESIGN']) ? implode(', ', (array)$_POST['INSTRUCTIONAL_DESIGN']) : '';
-        $technology_integration = isset($_POST['TECHNOLOGY_INTEGRATION']) ? implode(', ', (array)$_POST['TECHNOLOGY_INTEGRATION']) : '';
-        $approach = isset($_POST['APPROACH']) ? implode(', ', (array)$_POST['APPROACH']) : '';
-        $method = isset($_POST['METHOD']) ? implode(', ', (array)$_POST['METHOD']) : '';
+        $instructional_design = $_POST['INSTRUCTIONAL_DESIGN'] ?? '';
+        $technology_integration = $_POST['TECHNOLOGY_INTEGRATION'] ?? '';
+        $approach = $_POST['APPROACH'] ?? '';
+        $method = $_POST['METHOD'] ?? '';
         $parental_involvement = $_POST['PARENTAL_INVOLVEMENT'] ?? '';
-        $teaching_aids = $_POST['TEACHING_AIDS'] ?? '';
 
         // Update the lesson plan
         $sql = "UPDATE lesson_plan SET 

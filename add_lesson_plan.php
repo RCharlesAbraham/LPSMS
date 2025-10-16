@@ -25,6 +25,11 @@ try {
     // Create table if not exists
     $checkDb->exec("CREATE TABLE IF NOT EXISTS `lesson_plan` (
         `LessonPlan_ID` INT AUTO_INCREMENT PRIMARY KEY,
+        `MEDIUM` VARCHAR(255),
+        `NAME` VARCHAR(255),
+        `TYPE` VARCHAR(255),
+        `SUBJECT_CODE` VARCHAR(255),
+        `BACKGROUND_COLOR` VARCHAR(7),
         `CLUSTER` VARCHAR(255),
         `THEME` VARCHAR(255),
         `SUB_THEME` VARCHAR(255),
@@ -45,6 +50,11 @@ try {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Collect and sanitize input
+        $medium = $_POST['MEDIUM'] ?? '';
+        $name = $_POST['NAME'] ?? '';
+        $type = $_POST['TYPE'] ?? '';
+        $subject_code = $_POST['SUBJECT_CODE'] ?? '';
+        $background_color = $_POST['BACKGROUND_COLOR'] ?? '';
         $cluster = $_POST['CLUSTER'] ?? '';
         $theme = $_POST['THEME'] ?? '';
         $sub_theme = $_POST['SUB_THEME'] ?? '';
@@ -57,9 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $method = isset($_POST['METHOD']) ? implode(', ', (array)$_POST['METHOD']) : '';
         $parental_involvement = $_POST['PARENTAL_INVOLVEMENT'] ?? '';
 
-        $sql = "INSERT INTO lesson_plan (CLUSTER, THEME, SUB_THEME, TOPIC, YEAR, `DURATION (minutes)`, `INSTRUCTIONAL DESIGN`, `TECHNOLOGY INTEGRATION`, `APPROACH`, `METHOD`, `PARENTAL INVOLVEMENT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO lesson_plan (MEDIUM, NAME, TYPE, SUBJECT_CODE, BACKGROUND_COLOR, CLUSTER, THEME, SUB_THEME, TOPIC, YEAR, `DURATION (minutes)`, `INSTRUCTIONAL DESIGN`, `TECHNOLOGY INTEGRATION`, `APPROACH`, `METHOD`, `PARENTAL INVOLVEMENT`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
+            $medium, $name, $type, $subject_code, $background_color,
             $cluster, $theme, $sub_theme, $topic, $year, $duration,
             $instructional_design, $technology_integration, $approach, $method, $parental_involvement
         ]);
