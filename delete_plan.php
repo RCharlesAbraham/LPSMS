@@ -17,7 +17,7 @@ try {
     }
     
     // Prepare and execute the delete query
-    $stmt = $pdo->prepare("DELETE FROM Lesson_Plan WHERE LessonPlan_ID = ?");
+    $stmt = $pdo->prepare("DELETE FROM lesson_plan WHERE LessonPlan_ID = ?");
     $result = $stmt->execute([$planId]);
     
     if ($result && $stmt->rowCount() > 0) {

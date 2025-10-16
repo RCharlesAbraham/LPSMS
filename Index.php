@@ -1,9 +1,15 @@
 <?php
 require_once 'config.php';
 
+// Generate CSRF token for form submission
+session_start();
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 try {
     // Fetch all lesson plans
-    $stmt = $pdo->query("SELECT * FROM Lesson_Plan ORDER BY LessonPlan_ID DESC");
+    $stmt = $pdo->query("SELECT * FROM lesson_plan ORDER BY LessonPlan_ID DESC");
     $lessonPlans = $stmt->fetchAll();
 } catch (PDOException $e) {
     $error = "Database error: " . $e->getMessage();
@@ -17,15 +23,16 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lesson Plan Form</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         * {
             box-sizing: border-box;
         }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f8fafc;
-            color: #334155;
+            background: #f3f4f6;
+            color: #374151;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
@@ -46,19 +53,22 @@ try {
         }
         .card {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
             margin-bottom: 24px;
             overflow: hidden;
         }
         .card-header {
             padding: 24px 24px 0 24px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e5e7eb;
         }
         .card-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1e293b;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 21.6px;
+            color: rgb(52, 58, 64);
+            text-transform: capitalize;
             margin: 0 0 24px 0;
         }
         .card-body {
@@ -100,13 +110,14 @@ try {
         }
         .form-input {
             width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
             font-size: 14px;
-            color: #334155;
+            color: #374151;
             transition: border-color 0.2s;
             background: white;
+            font-family: inherit;
         }
         .form-input:focus {
             outline: none;
@@ -114,7 +125,7 @@ try {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         .form-input::placeholder {
-            color: #94a3b8;
+            color: #9ca3af;
         }
         .section-title {
             font-size: 18px;
@@ -142,11 +153,11 @@ try {
         .text-area {
             width: 100%;
             min-height: 100px;
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
             font-size: 14px;
-            color: #334155;
+            color: #374151;
             font-family: inherit;
             resize: vertical;
             transition: border-color 0.2s;
@@ -157,9 +168,9 @@ try {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         .standards-list {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
             padding: 16px;
             margin-top: 12px;
             max-height: 300px;
@@ -194,16 +205,19 @@ try {
             margin-top: 20px;
         }
         .section-block {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
             padding: 16px;
         }
         .section-block h4 {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 21.6px;
+            color: rgb(52, 58, 64);
+            text-transform: capitalize;
             margin: 0 0 12px 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: #1e293b;
         }
         .checkbox-option {
             display: flex;
@@ -225,7 +239,7 @@ try {
         }
         .divider {
             height: 1px;
-            background-color: #e2e8f0;
+            background-color: #e5e7eb;
             margin: 24px 0;
         }
         .button-group {
@@ -235,31 +249,66 @@ try {
             margin-top: 24px;
         }
         .btn {
-            display: inline-flex;
+            width: 120px;
+            display: flex;
+            justify-content: center;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 14px 28px;
             border: none;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 12px;
             transition: all 0.2s;
             text-decoration: none;
+            font-family: inherit;
         }
         .btn-reset {
-            background: #f1f5f9;
-            color: #64748b;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 14px;
+            text-align: center;
+            text-transform: none;
+            vertical-align: middle;
+            white-space: pre;
+            
+            background-color: rgb(195, 189, 189);
+            color: rgb(255, 255, 255);
+            
+            height: 44.4727px;
+            width: 120.859px;
+            border: 1.25px solid rgb(195, 189, 189);
+            margin: 0px;
+            padding: 14px 40px;
+            
+            position: static;
+            float: right;
+            display: block;
+            cursor: pointer;
+            
+            overflow: clip;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            box-sizing: border-box;
+            border-radius: 3px;
         }
         .btn-reset:hover {
-            background: #e2e8f0;
+            background-color: rgb(175, 169, 169);
+            border-color: rgb(175, 169, 169);
+        }
+
+        .btn-reset:active { 
+            color: rgb(0, 0, 0);
+            background-color: rgb(148, 148, 148);
+            border-color: rgb(126, 126, 126);
+            box-shadow: 0 0 0 4px rgba(148, 148, 148, 0.7), 0 0 8px 2px rgba(148, 148, 148, 0.4), 0 0 16px 4px rgba(126,126,126,0.25);
         }
         .btn-submit {
-            background: #3b82f6;
+            background: #25577A;
             color: white;
         }
         .btn-submit:hover {
-            background: #2563eb;
+            background: #374151;
         }
 
         /* Styles for the view table */
@@ -299,8 +348,8 @@ try {
             align-items: center;
             gap: 8px;
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
             padding: 8px 12px;
             min-width: 200px;
         }
@@ -309,30 +358,324 @@ try {
             outline: none;
             background: transparent;
             font-size: 14px;
-            color: #334155;
+            color: #374151;
             width: 100%;
         }
         .search-input::placeholder {
-            color: #94a3b8;
+            color: #9ca3af;
         }
         .toolbar-actions {
             display: flex;
-            gap: 8px;
+            gap: 0;
         }
+        .toolbar-actions > * {
+            margin-left: 0;
+        }
+
+       
         .btn-icon {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: #f1f5f9;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 14px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 400;
+            letter-spacing: normal;
+            line-height: 14px;
+            text-decoration: none;
+            text-align: center;
+            text-indent: 0px;
+            text-transform: none;
+            vertical-align: middle;
+            white-space: pre;
+            word-spacing: 0px;
+            
+            background-attachment: scroll;
+            background-color: rgb(195, 189, 189);
+            background-image: none;
+            background-position: 0% 0%;
+            background-repeat: repeat;
+            color: rgb(255, 255, 255);
+            
+            height: 44.4727px;
+            width: 120.859px;
+            border: 1.25px solid rgb(195, 189, 189);
+            border-top: 1.25px solid rgb(195, 189, 189);
+            border-right: 1.25px solid rgb(195, 189, 189);
+            border-bottom: 1.25px solid rgb(195, 189, 189);
+            border-left: 1.25px solid rgb(195, 189, 189);
+            margin: 0px;
+            padding: 14px 40px;
+            max-height: none;
+            min-height: 0px;
+            max-width: none;
+            min-width: 0px;
+            
+            position: static;
+            top: auto;
+            bottom: auto;
+            right: auto;
+            left: auto;
+            float: none;
+            display: block;
+            clear: none;
+            z-index: auto;
+            
+            overflow: clip;
             cursor: pointer;
-            transition: all 0.2s;
+            visibility: visible;
+            
+            transform: none;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+            outline: none;
+            outline-offset: 0px;
+            box-sizing: border-box;
+            resize: none;
+            text-shadow: none;
+            text-overflow: clip;
+            word-wrap: break-word;
+            box-shadow: none;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
         }
         .btn-icon:hover {
-            background: #e2e8f0;
+            background-color: rgb(175, 169, 169);
+            border-color: rgb(175, 169, 169);
+        }
+
+        /* Button Icon Styling */
+        .btn-icon .fa {
+            font-family: FontAwesome;
+            font-size: 16px;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 400;
+            letter-spacing: normal;
+            line-height: 16px;
+            text-decoration: none;
+            text-align: center;
+            text-indent: 0px;
+            text-transform: none;
+            vertical-align: middle;
+            white-space: normal;
+            word-spacing: 0px;
+            
+            background-attachment: scroll;
+            background-color: rgba(0, 0, 0, 0);
+            background-image: none;
+            background-position: 0% 0%;
+            background-repeat: repeat;
+            color: rgb(255, 255, 255);
+            opacity: 1;
+            
+            border: 0px none;
+            margin: 0px;
+            padding: 0px;
+            max-height: none;
+            min-height: 0px;
+            max-width: none;
+            min-width: 0px;
+            
+            position: static;
+            top: auto;
+            bottom: auto;
+            right: auto;
+            left: auto;
+            float: none;
+            display: inline-block;
+            clear: none;
+            z-index: auto;
+            
+            overflow: visible;
+            cursor: pointer;
+            visibility: visible;
+            
+            transform: none;
+            transition: all 0.15s ease-in-out;
+            outline: none;
+            outline-offset: 0px;
+            box-sizing: border-box;
+            resize: none;
+            text-shadow: none;
+            text-overflow: clip;
+            word-wrap: break-word;
+            box-shadow: none;
+            border-radius: 0px;
+        }
+
+
+        /* Export Dropdown Styles */
+        .export-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            min-width: 120px;
+            margin-top: 4px;
+        }
+
+        .export-menu.show {
+            display: block;
+        }
+
+        .export-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s;
+        }
+
+        .export-option:last-child {
+            border-bottom: none;
+        }
+
+        .export-option:hover {
+            background-color: #f9fafb;
+        }
+
+        .export-option:first-child {
+            background-color: #f3f4f6;
+        }
+
+        /* Filter Section Styles */
+        .filter-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            background: white;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        .filter-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* View Dropdown Styles */
+        .view-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .view-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dropdown-arrow {
+            margin-left: 4px;
+            opacity: 1;
+        }
+        
+        .dropdown-arrow path {
+            stroke: rgb(255, 255, 255);
+            stroke-width: 1.5;
+        }
+
+        .view-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+
+        .view-menu.show {
+            display: block;
+        }
+
+        .column-filter-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .column-filter-item:last-child {
+            border-bottom: none;
+        }
+
+        .column-filter-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .column-checkbox {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .column-filter-item label {
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Updated Toolbar Layout */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-tab.active {
+            text-decoration: underline;
+        }
+
+        .nav-separator {
+            color: #d1d5db;
+            font-size: 14px;
         }
         .data-table {
             width: 100%;
@@ -342,15 +685,15 @@ try {
         .data-table th,
         .data-table td {
             padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
             font-size: 14px;
         }
         .data-table th {
             background: white;
             font-weight: 600;
             color: #374151;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #e5e7eb;
         }
         .data-table tbody tr {
             transition: background-color 0.2s;
@@ -633,18 +976,18 @@ try {
         .status-badge {
             display: inline-flex;
             align-items: center;
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 4px 8px;
+            border-radius: 4px;
             font-size: 12px;
             font-weight: 500;
         }
         .status-badge.yes {
-            background: #d1fae5;
-            color: #065f46;
+            background: #10b981;
+            color: white;
         }
         .status-badge.no {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #ef4444;
+            color: white;
         }
         .btn-view {
             /* Font & Text */
@@ -736,15 +1079,15 @@ try {
         }
         .table-footer {
             padding: 16px 24px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
             font-size: 14px;
-            color: #64748b;
+            color: #6b7280;
         }
         .empty-state {
             text-align: center;
             padding: 48px 24px;
-            color: #64748b;
+            color: #6b7280;
         }
         .empty-state-icon {
             margin-bottom: 16px;
@@ -782,7 +1125,7 @@ try {
         }
         .modal-content {
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             max-width: 700px;
             width: 95%;
@@ -792,19 +1135,22 @@ try {
         }
         .modal-header {
             padding: 24px 24px 0 24px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .modal-title {
+            font-family: 'Ubuntu', sans-serif;
             font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
+            font-weight: 500;
+            line-height: 21.6px;
+            color: rgb(52, 58, 64);
+            text-transform: capitalize;
             margin: 0 0 24px 0;
         }
         .close-btn {
-            color: #94a3b8;
+            color: #9ca3af;
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
@@ -813,7 +1159,7 @@ try {
             padding: 4px;
         }
         .close-btn:hover {
-            color: #64748b;
+            color: #6b7280;
         }
         .modal-body {
             padding: 24px;
@@ -825,6 +1171,99 @@ try {
             display: flex;
             justify-content: flex-end;
             gap: 12px;
+        }
+
+        /* Delete Modal Specific Styles */
+        .delete-modal-content {
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .delete-modal-body {
+            padding: 40px 30px 30px 30px;
+        }
+        
+        .warning-icon {
+            margin-bottom: 24px;
+        }
+        
+        .warning-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #fef3c7;
+            border: 2px solid #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .warning-exclamation {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f59e0b;
+            line-height: 1;
+        }
+        
+        .delete-modal-title {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 24px;
+            font-weight: 500;
+            line-height: 28.8px;
+            color: rgb(52, 58, 64);
+            text-transform: capitalize;
+            margin: 0 0 12px 0;
+        }
+        
+        .delete-modal-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin: 0 0 32px 0;
+            line-height: 1.5;
+        }
+        
+        .delete-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        
+        .btn-delete-confirm {
+            background: #7c3aed;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .btn-delete-confirm:hover {
+            background: #6d28d9;
+            color: white;
+        }
+        
+        .btn-delete-cancel {
+            background: #ef4444;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-delete-cancel:hover {
+            background: #dc2626;
         }
         @media (max-width: 768px) {
             .form-column, .form-column-wide, .form-column-narrow {
@@ -857,47 +1296,48 @@ try {
                 <h1 class="card-title">Create Lesson Plan</h1>
             </div>
             <div class="card-body">
-                <form method="POST" action="add_lesson_plan.php">
+                <form method="POST" action="add_lesson_plan.php" id="lessonPlanForm">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <!-- General Information Section -->
                     <div class="form-row">
                         <!-- Column 1 -->
                         <div class="form-column">
                             <div class="form-group">
-                                <label>KLUSTER <span class="required">*</span></label>
+                                <label>Cluster <span class="required">*</span></label>
                                 <input type="text" name="CLUSTER" class="form-input" placeholder="" required>
                             </div>
                             <div class="form-group">
-                                <label>TEMA <span class="required">*</span></label>
+                                <label>Theme <span class="required">*</span></label>
                                 <input type="text" name="THEME" class="form-input" placeholder="" required>
                             </div>
                         </div>
                         <!-- Column 2 -->
                         <div class="form-column">
                             <div class="form-group">
-                                <label>SUB-TEMA <span class="required">*</span></label>
+                                <label>Sub-Theme <span class="required">*</span></label>
                                 <input type="text" name="SUB_THEME" class="form-input" placeholder="" required>
                             </div>
                             <div class="form-group">
-                                <label>TOPIK <span class="required">*</span></label>
+                                <label>Topic <span class="required">*</span></label>
                                 <input type="text" name="TOPIC" class="form-input" placeholder="" required>
                             </div>
                         </div>
                         <!-- Column 3 -->
                         <div class="form-column">
                             <div class="form-group">
-                                <label>TAHUN <span class="required">*</span></label>
+                                <label>Year <span class="required">*</span></label>
                                 <select name="YEAR" class="form-input" required>
                                     <option value="">Select Year</option>
-                                    <option value="SATU">SATU</option>
-                                    <option value="DUA">DUA</option>
-                                    <option value="TIGA">TIGA</option>
-                                    <option value="EMPAT">EMPAT</option>
-                                    <option value="LIMA">LIMA</option>
-                                    <option value="ENAM">ENAM</option>
+                                    <option value="ONE">One</option>
+                                    <option value="TWO">Two</option>
+                                    <option value="THREE">Three</option>
+                                    <option value="FOUR">Four</option>
+                                    <option value="FIVE">Five</option>
+                                    <option value="SIX">Six</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>DURASI PELAKSANAAN (minit) <span class="required">*</span></label>
+                                <label>Duration (Minutes) <span class="required">*</span></label>
                                 <input type="text" name="DURATION" class="form-input" placeholder="" required>
                             </div>
                         </div>
@@ -909,9 +1349,9 @@ try {
                     <div class="section-grid">
                         <!-- Learning Standards Section -->
                         <div class="section-block">
-                            <h4>STANDARD PEMBELAJARAN (Learning Standards)</h4>
+                            <h4>Learning Standards</h4>
                             <div class="form-group">
-                                <label>PENDIDIKAN ISLAM</label>
+                                <label>Islamic Education</label>
                                 <div class="standards-list">
                                     <ol>
                                         <li>Murid dapat menyatakan keistimewaan Rasulullah SAW melalui keturunan, peristiwa kelahiran dan ibrah yang boleh diambil. (KPI5, DKM4, DKM7, DKM8, DKM9, DKM10, DKM13, KI1, KI2, KI4, KI7)</li>
@@ -935,7 +1375,7 @@ try {
                         
                         <!-- Performance Standards Section -->
                         <div class="section-block">
-                            <h4>STANDARD PRESTASI (Performance Standards)</h4>
+                            <h4>Performance Standards</h4>
                             <div class="form-group">
                                 <label>Codes:</label>
                                 <div class="checkbox-group-vertical">
@@ -954,7 +1394,7 @@ try {
                         
                         <!-- Assessment Section -->
                         <div class="section-block">
-                            <h4>PENTAKSIRAN (Assessment)</h4>
+                            <h4>Assessment</h4>
                             <div class="form-group">
                                 <label>Assessment Methods:</label>
                                 <div class="standards-list">
@@ -971,7 +1411,7 @@ try {
                     <div class="section-grid-3">
                         <!-- Instructional Design Section -->
                         <div class="section-block">
-                            <h4>REKA BENTUK INSTRUKSI (Instructional Design)</h4>
+                            <h4>Instructional Design</h4>
                             <div class="checkbox-group-vertical">
                                 <label class="checkbox-option">
                                     <input type="checkbox" name="INSTRUCTIONAL_DESIGN[]" value="Active Learning"> Active Learning
@@ -989,12 +1429,12 @@ try {
                                     <input type="checkbox" name="INSTRUCTIONAL_DESIGN[]" value="Authentic Learning"> Authentic Learning
                                 </label>
                             </div>
-                            <small style="color: #64748b; font-size: 12px;">*Rujuk Technology Integration Matrix</small>
+                            <small style="color: #64748b; font-size: 12px;">*Refer to Technology Integration Matrix</small>
                         </div>
                         
                         <!-- Technology Integration Section -->
                         <div class="section-block">
-                            <h4>INTEGRASI TEKNOLOGI (Technology Integration)</h4>
+                            <h4>Technology Integration</h4>
                             <div class="checkbox-group-vertical">
                                 <label class="checkbox-option">
                                     <input type="checkbox" name="TECHNOLOGY_INTEGRATION[]" value="Entry Level"> Entry Level
@@ -1012,30 +1452,30 @@ try {
                                     <input type="checkbox" name="TECHNOLOGY_INTEGRATION[]" value="Transformation Level"> Transformation Level
                                 </label>
                             </div>
-                            <small style="color: #64748b; font-size: 12px;">*Rujuk Technology Integration Matrix</small>
+                            <small style="color: #64748b; font-size: 12px;">*Refer to Technology Integration Matrix</small>
                         </div>
                         
                         <!-- Approach Section -->
                         <div class="section-block">
-                            <h4>PENDEKATAN (Approach)</h4>
+                            <h4>Approach</h4>
                             <div class="checkbox-group-vertical">
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Inkuiri"> Inkuiri (Inquiry)
+                                    <input type="checkbox" name="APPROACH[]" value="Inquiry"> Inquiry
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Pembelajaran Masteri"> Pembelajaran Masteri (Mastery Learning)
+                                    <input type="checkbox" name="APPROACH[]" value="Mastery Learning"> Mastery Learning
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Berasaskan Masalah" checked> Berasaskan Masalah (Problem-Based)
+                                    <input type="checkbox" name="APPROACH[]" value="Problem-Based" checked> Problem-Based
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Kontekstual" checked> Kontekstual (Contextual)
+                                    <input type="checkbox" name="APPROACH[]" value="Contextual" checked> Contextual
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Berasaskan Projek"> Berasaskan Projek (Project-Based)
+                                    <input type="checkbox" name="APPROACH[]" value="Project-Based"> Project-Based
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="APPROACH[]" value="Berasaskan Pengalaman"> Berasaskan Pengalaman (Experience-Based)
+                                    <input type="checkbox" name="APPROACH[]" value="Experience-Based"> Experience-Based
                                 </label>
                             </div>
                         </div>
@@ -1045,45 +1485,45 @@ try {
                     <div class="section-grid-2">
                         <!-- Method Section -->
                         <div class="section-block">
-                            <h4>KAEDAH (Method)</h4>
+                            <h4>Method</h4>
                             <div class="checkbox-group">
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Simulasi" checked> Simulasi (Simulation)
+                                    <input type="checkbox" name="METHOD[]" value="Simulation" checked> Simulation
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Eksperimentasi"> Eksperimentasi (Experimentation)
+                                    <input type="checkbox" name="METHOD[]" value="Experimentation"> Experimentation
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Main Peranan" checked> Main Peranan (Role Play)
+                                    <input type="checkbox" name="METHOD[]" value="Role Play" checked> Role Play
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Nyanyian"> Nyanyian (Singing)
+                                    <input type="checkbox" name="METHOD[]" value="Singing"> Singing
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Bercerita"> Bercerita (Storytelling)
+                                    <input type="checkbox" name="METHOD[]" value="Storytelling"> Storytelling
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Tunjuk Cara"> Tunjuk Cara (Demonstration)
+                                    <input type="checkbox" name="METHOD[]" value="Demonstration"> Demonstration
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="checkbox" name="METHOD[]" value="Sumbangsaran"> Sumbangsaran (Brainstorming)
+                                    <input type="checkbox" name="METHOD[]" value="Brainstorming"> Brainstorming
                                 </label>
                             </div>
                             <div class="form-group" style="margin-top: 12px;">
-                                <label>Lain-lain (Other):</label>
-                                <input type="text" name="METHOD_OTHER" class="form-input" placeholder="e.g., Bermain (Playing)">
+                                <label>Other:</label>
+                                <input type="text" name="METHOD_OTHER" class="form-input" placeholder="e.g., Playing">
                             </div>
                         </div>
                         
                         <!-- Parental Involvement Section -->
                         <div class="section-block">
-                            <h4>PENGLIBATAN IBU BAPA (Parental Involvement)</h4>
+                            <h4>Parental Involvement</h4>
                             <div class="checkbox-group-vertical">
                                 <label class="checkbox-option">
-                                    <input type="radio" name="PARENTAL_INVOLVEMENT" value="YA"> YA (Yes)
+                                    <input type="radio" name="PARENTAL_INVOLVEMENT" value="YES"> Yes
                                 </label>
                                 <label class="checkbox-option">
-                                    <input type="radio" name="PARENTAL_INVOLVEMENT" value="TIDAK" checked> TIDAK (No)
+                                    <input type="radio" name="PARENTAL_INVOLVEMENT" value="NO" checked> No
                                 </label>
                             </div>
                         </div>
@@ -1095,7 +1535,7 @@ try {
                     <div class="section-grid-2">
                         <!-- Performance Objectives Section -->
                         <div class="section-block">
-                            <h4>OBJEKTIF PRESTASI (Performance Objectives)</h4>
+                            <h4>Performance Objectives</h4>
                             <div class="form-group">
                                 <label>Objectives:</label>
                                 <div class="standards-list">
@@ -1109,7 +1549,7 @@ try {
                         
                         <!-- Activities Section -->
                         <div class="section-block">
-                            <h4>AKTIVITI (Activities)</h4>
+                            <h4>Activities</h4>
                             <div class="form-group">
                                 <label>Activity Details:</label>
                                 <div class="standards-list">
@@ -1140,10 +1580,10 @@ try {
                     
                     <!-- Teaching Aids Section -->
                     <div class="section-block">
-                        <h4>ALAT BANTU MENGAJAR (Teaching Aids)</h4>
+                        <h4>Teaching Aids</h4>
                         <div class="form-group">
                             <label>Teaching Materials:</label>
-                            <textarea name="TEACHING_AIDS" class="text-area" placeholder="e.g., Sticky notes berwarna, kad manila, pita pelekat, papan putih, bahan-bahan untuk simulasi">Sticky notes berwarna, kad manila, pita pelekat, papan putih, bahan-bahan untuk simulasi</textarea>
+                            <textarea name="TEACHING_AIDS" class="text-area" placeholder="e.g., Colored sticky notes, manila cards, adhesive tape, whiteboard, simulation materials">Colored sticky notes, manila cards, adhesive tape, whiteboard, simulation materials</textarea>
                         </div>
                     </div>
                     
@@ -1159,39 +1599,105 @@ try {
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h1 class="card-title">List Lesson Plans</h1>
+                <h1 class="card-title">List Subject</h1>
                 <div class="toolbar">
+                    <div class="filter-section">
+                        <select class="filter-dropdown">
+                            <option value="all">All</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <div class="search-bar">
+                            <input type="text" class="search-input" placeholder="Search">
+                        </div>
+                    </div>
+                    <div class="toolbar-actions">
+                        <button class="btn-icon" title="Refresh">
+                            <i class="fa fa-sync"></i>
+                        </button>
+                        <div class="view-dropdown">
+                            <button class="btn-icon view-btn" title="View Options" id="viewBtn">
+                                <i class="fa fa-th-list"></i>
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
+                                    <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="view-menu" id="viewMenu">
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-id" class="column-checkbox" checked>
+                                    <label for="col-id">ID</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-cluster" class="column-checkbox" checked>
+                                    <label for="col-cluster">Cluster</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-theme" class="column-checkbox" checked>
+                                    <label for="col-theme">Theme</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-sub-theme" class="column-checkbox" checked>
+                                    <label for="col-sub-theme">Sub-Theme</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-topic" class="column-checkbox" checked>
+                                    <label for="col-topic">Topic</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-year" class="column-checkbox" checked>
+                                    <label for="col-year">Year</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-duration" class="column-checkbox" checked>
+                                    <label for="col-duration">Duration</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-instructional-design" class="column-checkbox" checked>
+                                    <label for="col-instructional-design">Instructional Design</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-technology-integration" class="column-checkbox" checked>
+                                    <label for="col-technology-integration">Technology Integration</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-approach" class="column-checkbox" checked>
+                                    <label for="col-approach">Approach</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-method" class="column-checkbox" checked>
+                                    <label for="col-method">Method</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-parental-involvement" class="column-checkbox" checked>
+                                    <label for="col-parental-involvement">Parental Involvement</label>
+                                </div>
+                                <div class="column-filter-item">
+                                    <input type="checkbox" id="col-actions" class="column-checkbox" checked>
+                                    <label for="col-actions">Actions</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="export-dropdown">
+                            <button class="btn-icon export-btn" title="Export" id="exportBtn">
+                                <i class="fa fa-download"></i>
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" class="dropdown-arrow">
+                                    <path d="M3 4.5L6 7.5L9 4.5" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <div class="export-menu" id="exportMenu">
+                                <div class="export-option" data-format="json">JSON</div>
+                                <div class="export-option" data-format="xml">XML</div>
+                                <div class="export-option" data-format="csv">CSV</div>
+                                <div class="export-option" data-format="txt">TXT</div>
+                                <div class="export-option" data-format="sql">SQL</div>
+                                <div class="export-option" data-format="excel">MS-Excel</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="nav-tabs">
                         <a href="#" class="nav-tab active">All</a>
                         <span class="nav-separator">|</span>
                         <a href="#" class="nav-tab">Trashed</a>
-                    </div>
-                    <div class="search-bar">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667ZM14 14l-2.9-2.9" stroke="#94a3b8" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <input type="text" class="search-input" placeholder="Search">
-                    </div>
-                    <div class="toolbar-actions">
-                        <button class="btn-icon" title="Refresh">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M1.333 8a6.667 6.667 0 1 0 6.667-6.667v2.667" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M8 2.667L10.667 5.333 8 8" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                        <button class="btn-icon" title="Column Visibility">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M2.667 4h10.666v8H2.667z" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M6.667 4v8M9.333 4v8" stroke="#64748b" stroke-width="1.33"/>
-                            </svg>
-                        </button>
-                        <button class="btn-icon" title="Export">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M8 1.333v9.334" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M5.333 6.667L8 9.333l2.667-2.666" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M1.333 14.667h13.334" stroke="#64748b" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1230,24 +1736,38 @@ try {
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>No.</th>
-                                    <th>Name</th>
-                                    <th>Start Month</th>
-                                    <th>End Month</th>
-                                    <th>Current</th>
-                                    <th>Action</th>
+                                    <th data-column="LessonPlan_ID">ID</th>
+                                    <th data-column="CLUSTER">Cluster</th>
+                                    <th data-column="THEME">Theme</th>
+                                    <th data-column="SUB_THEME">Sub-Theme</th>
+                                    <th data-column="TOPIC">Topic</th>
+                                    <th data-column="YEAR">Year</th>
+                                    <th data-column="DURATION (minutes)">Duration</th>
+                                    <th data-column="INSTRUCTIONAL DESIGN">Instructional Design</th>
+                                    <th data-column="TECHNOLOGY INTEGRATION">Technology Integration</th>
+                                    <th data-column="APPROACH">Approach</th>
+                                    <th data-column="METHOD">Method</th>
+                                    <th data-column="PARENTAL INVOLVEMENT">Parental Involvement</th>
+                                    <th data-column="actions">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php $index = 1; foreach ($lessonPlans as $plan): ?>
                                 <tr>
-                                    <td><?php echo $index++; ?></td>
+                                    <td><?php echo $plan['LessonPlan_ID']; ?></td>
                                     <td><?php echo htmlspecialchars($plan['CLUSTER']); ?></td>
                                     <td><?php echo htmlspecialchars($plan['THEME']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['SUB_THEME']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['TOPIC']); ?></td>
                                     <td><?php echo htmlspecialchars($plan['YEAR']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['DURATION (minutes)']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['INSTRUCTIONAL DESIGN']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['TECHNOLOGY INTEGRATION']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['APPROACH']); ?></td>
+                                    <td><?php echo htmlspecialchars($plan['METHOD']); ?></td>
                                     <td>
-                                        <span class="status-badge <?php echo (rand(0,1) ? 'yes' : 'no'); ?>">
-                                            <?php echo (rand(0,1) ? 'Yes' : 'No'); ?>
+                                        <span class="status-badge <?php echo ($plan['PARENTAL INVOLVEMENT'] === 'YES' ? 'yes' : 'no'); ?>">
+                                            <?php echo ($plan['PARENTAL INVOLVEMENT'] === 'YES' ? 'Yes' : 'No'); ?>
                                         </span>
                                     </td>
                                     <td>
@@ -1308,17 +1828,24 @@ try {
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
-        <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header">
-                <h3 class="modal-title">Confirm Deletion</h3>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this lesson plan?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-reset" id="cancelDelete">Cancel</button>
-                <a href="#" id="confirmDelete" class="btn btn-danger">Delete</a>
+        <div class="modal-content delete-modal-content">
+            <div class="delete-modal-body">
+                <!-- Warning Icon -->
+                <div class="warning-icon">
+                    <div class="warning-circle">
+                        <span class="warning-exclamation">!</span>
+                    </div>
+                </div>
+                
+                <!-- Text Content -->
+                <h3 class="delete-modal-title">Are you sure?</h3>
+                <p class="delete-modal-message">You won't be able to revert this!</p>
+                
+                <!-- Action Buttons -->
+                <div class="delete-modal-buttons">
+                    <a href="#" id="confirmDelete" class="btn-delete-confirm">Yes, delete it</a>
+                    <button class="btn-delete-cancel" id="cancelDelete">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1329,6 +1856,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModal = document.getElementById('editModal');
     const deleteModal = document.getElementById('deleteModal');
     const modals = [viewModal, editModal, deleteModal];
+
+    // Prevent form resubmission
+    const lessonPlanForm = document.getElementById('lessonPlanForm');
+    if (lessonPlanForm) {
+        lessonPlanForm.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                // Re-enable after 5 seconds as fallback
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                }, 5000);
+            }
+        });
+    }
 
     // Auto-hide success/error messages after 5 seconds
     const successMessage = document.querySelector('.success');
@@ -1360,7 +1904,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close modal when clicking on 'x', the overlay, or cancel button
     modals.forEach(modal => {
-        modal.querySelector('.close-btn').addEventListener('click', () => closeModal(modal));
+        const closeBtn = modal.querySelector('.close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => closeModal(modal));
+        }
     });
     window.addEventListener('click', (event) => {
         modals.forEach(modal => {
@@ -1370,6 +1917,218 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     document.getElementById('cancelDelete').addEventListener('click', () => closeModal(deleteModal));
+
+    // Export dropdown functionality
+    const exportBtn = document.getElementById('exportBtn');
+    const exportMenu = document.getElementById('exportMenu');
+    
+    if (exportBtn && exportMenu) {
+        exportBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            exportMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
+                exportMenu.classList.remove('show');
+            }
+        });
+
+        // Handle export option clicks
+        exportMenu.addEventListener('click', (e) => {
+            if (e.target.classList.contains('export-option')) {
+                const format = e.target.getAttribute('data-format');
+                exportData(format);
+                exportMenu.classList.remove('show');
+            }
+        });
+    }
+
+    // View dropdown functionality
+    const viewBtn = document.getElementById('viewBtn');
+    const viewMenu = document.getElementById('viewMenu');
+    
+    if (viewBtn && viewMenu) {
+        viewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            viewMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!viewBtn.contains(e.target) && !viewMenu.contains(e.target)) {
+                viewMenu.classList.remove('show');
+            }
+        });
+
+        // Handle column filter checkbox clicks
+        viewMenu.addEventListener('change', (e) => {
+            if (e.target.classList.contains('column-checkbox')) {
+                const columnId = e.target.id;
+                const isVisible = e.target.checked;
+                toggleColumnVisibility(columnId, isVisible);
+            }
+        });
+
+        // Prevent dropdown from closing when clicking on checkboxes
+        viewMenu.addEventListener('click', (e) => {
+            if (e.target.type === 'checkbox' || e.target.tagName === 'LABEL') {
+                e.stopPropagation();
+            }
+        });
+    }
+
+    // Toggle column visibility function
+    function toggleColumnVisibility(columnId, isVisible) {
+        // Map checkbox IDs to table column classes/attributes
+        const columnMapping = {
+            'col-id': 'LessonPlan_ID',
+            'col-cluster': 'CLUSTER',
+            'col-theme': 'THEME',
+            'col-sub-theme': 'SUB_THEME',
+            'col-topic': 'TOPIC',
+            'col-year': 'YEAR',
+            'col-duration': 'DURATION (minutes)',
+            'col-instructional-design': 'INSTRUCTIONAL DESIGN',
+            'col-technology-integration': 'TECHNOLOGY INTEGRATION',
+            'col-approach': 'APPROACH',
+            'col-method': 'METHOD',
+            'col-parental-involvement': 'PARENTAL INVOLVEMENT',
+            'col-actions': 'actions'
+        };
+
+        const columnName = columnMapping[columnId];
+        if (columnName) {
+            // Find table headers and cells to toggle visibility
+            const table = document.querySelector('.data-table');
+            if (table) {
+                // Toggle header visibility
+                const headers = table.querySelectorAll('th');
+                headers.forEach(header => {
+                    if (header.textContent.trim() === columnName || 
+                        header.getAttribute('data-column') === columnName) {
+                        header.style.display = isVisible ? '' : 'none';
+                    }
+                });
+
+                // Toggle data cell visibility
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach((cell, index) => {
+                        const header = headers[index];
+                        if (header && (header.textContent.trim() === columnName || 
+                            header.getAttribute('data-column') === columnName)) {
+                            cell.style.display = isVisible ? '' : 'none';
+                        }
+                    });
+                });
+            }
+        }
+    }
+
+    // Export data function
+    function exportData(format) {
+        const lessonPlans = <?php echo json_encode($lessonPlans); ?>;
+        
+        switch(format) {
+            case 'json':
+                exportJSON(lessonPlans);
+                break;
+            case 'xml':
+                exportXML(lessonPlans);
+                break;
+            case 'csv':
+                exportCSV(lessonPlans);
+                break;
+            case 'txt':
+                exportTXT(lessonPlans);
+                break;
+            case 'sql':
+                exportSQL(lessonPlans);
+                break;
+            case 'excel':
+                exportExcel(lessonPlans);
+                break;
+        }
+    }
+
+    function exportJSON(data) {
+        const jsonString = JSON.stringify(data, null, 2);
+        downloadFile(jsonString, 'lesson_plans.json', 'application/json');
+    }
+
+    function exportXML(data) {
+        let xmlString = '<' + '?xml version="1.0" encoding="UTF-8"?>' + '\\n<lesson_plans>\\n';
+        data.forEach(plan => {
+            xmlString += '  <lesson_plan>\\n';
+            Object.keys(plan).forEach(key => {
+                xmlString += `    <${key}>${plan[key] || ''}</${key}>\\n`;
+            });
+            xmlString += '  </lesson_plan>\\n';
+        });
+        xmlString += '</lesson_plans>';
+        downloadFile(xmlString, 'lesson_plans.xml', 'application/xml');
+    }
+
+    function exportCSV(data) {
+        if (data.length === 0) return;
+        
+        const headers = Object.keys(data[0]);
+        const csvContent = [
+            headers.join(','),
+            ...data.map(row => headers.map(header => `"${(row[header] || '').toString().replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+        
+        downloadFile(csvContent, 'lesson_plans.csv', 'text/csv');
+    }
+
+    function exportTXT(data) {
+        let txtContent = 'LESSON PLANS EXPORT\n';
+        txtContent += '==================\n\n';
+        
+        data.forEach((plan, index) => {
+            txtContent += `Lesson Plan ${index + 1}:\n`;
+            txtContent += '-------------------\n';
+            Object.keys(plan).forEach(key => {
+                txtContent += `${key.replace(/_/g, ' ').toUpperCase()}: ${plan[key] || 'N/A'}\n`;
+            });
+            txtContent += '\n';
+        });
+        
+        downloadFile(txtContent, 'lesson_plans.txt', 'text/plain');
+    }
+
+    function exportSQL(data) {
+        let sqlContent = '-- Lesson Plans Export\n';
+        sqlContent += '-- Generated on: ' + new Date().toISOString() + '\n\n';
+        
+        data.forEach(plan => {
+            const columns = Object.keys(plan);
+            const values = columns.map(col => `'${(plan[col] || '').toString().replace(/'/g, "''")}'`);
+            sqlContent += `INSERT INTO lesson_plan (${columns.join(', ')}) VALUES (${values.join(', ')});\n`;
+        });
+        
+        downloadFile(sqlContent, 'lesson_plans.sql', 'application/sql');
+    }
+
+    function exportExcel(data) {
+        // For Excel export, we'll create a CSV that Excel can open
+        exportCSV(data);
+    }
+
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }
 
     // Event delegation for action buttons
     const tableContainer = document.querySelector('.table-responsive');
@@ -1401,53 +2160,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Create a comprehensive edit form
             editBody.innerHTML = `
-                <form action="update_plan.php" method="POST">
+                <form action="update_plan.php" method="POST" id="editForm">
                     <input type="hidden" name="LessonPlan_ID" value="${planData.LessonPlan_ID}">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     
                     <div class="form-row">
                         <div class="form-column">
                             <div class="form-group">
-                                <label>KLUSTER <span class="required">*</span></label>
+                                <label>CLUSTER <span class="required">*</span></label>
                                 <input type="text" name="CLUSTER" class="form-input" value="${planData.CLUSTER || ''}" required>
                             </div>
                             <div class="form-group">
-                                <label>TEMA <span class="required">*</span></label>
+                                <label>THEME <span class="required">*</span></label>
                                 <input type="text" name="THEME" class="form-input" value="${planData.THEME || ''}" required>
                             </div>
                         </div>
                         <div class="form-column">
                             <div class="form-group">
-                                <label>SUB-TEMA <span class="required">*</span></label>
+                                <label>Sub-Theme <span class="required">*</span></label>
                                 <input type="text" name="SUB_THEME" class="form-input" value="${planData.SUB_THEME || ''}" required>
                             </div>
                             <div class="form-group">
-                                <label>TOPIK <span class="required">*</span></label>
+                                <label>Topic <span class="required">*</span></label>
                                 <input type="text" name="TOPIC" class="form-input" value="${planData.TOPIC || ''}" required>
                             </div>
                         </div>
                         <div class="form-column">
                             <div class="form-group">
-                                <label>TAHUN <span class="required">*</span></label>
+                                <label>Year <span class="required">*</span></label>
                                 <select name="YEAR" class="form-input" required>
                                     <option value="">Select Year</option>
-                                    <option value="SATU" ${planData.YEAR === 'SATU' ? 'selected' : ''}>SATU</option>
-                                    <option value="DUA" ${planData.YEAR === 'DUA' ? 'selected' : ''}>DUA</option>
-                                    <option value="TIGA" ${planData.YEAR === 'TIGA' ? 'selected' : ''}>TIGA</option>
-                                    <option value="EMPAT" ${planData.YEAR === 'EMPAT' ? 'selected' : ''}>EMPAT</option>
-                                    <option value="LIMA" ${planData.YEAR === 'LIMA' ? 'selected' : ''}>LIMA</option>
-                                    <option value="ENAM" ${planData.YEAR === 'ENAM' ? 'selected' : ''}>ENAM</option>
+                                    <option value="ONE" ${planData.YEAR === 'ONE' ? 'selected' : ''}>One</option>
+                                    <option value="TWO" ${planData.YEAR === 'TWO' ? 'selected' : ''}>Two</option>
+                                    <option value="THREE" ${planData.YEAR === 'THREE' ? 'selected' : ''}>Three</option>
+                                    <option value="FOUR" ${planData.YEAR === 'FOUR' ? 'selected' : ''}>Four</option>
+                                    <option value="FIVE" ${planData.YEAR === 'FIVE' ? 'selected' : ''}>Five</option>
+                                    <option value="SIX" ${planData.YEAR === 'SIX' ? 'selected' : ''}>Six</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>DURASI PELAKSANAAN (minit) <span class="required">*</span></label>
-                                <input type="text" name="DURATION" class="form-input" value="${planData.DURATION || ''}" required>
+                                <label>Duration (Minutes) <span class="required">*</span></label>
+                                <input type="text" name="DURATION" class="form-input" value="${planData['DURATION (minutes)'] || ''}" required>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>ALAT BANTU MENGAJAR (Teaching Aids)</label>
-                        <textarea name="TEACHING_AIDS" class="text-area" placeholder="e.g., Sticky notes berwarna, kad manila, pita pelekat, papan putih, bahan-bahan untuk simulasi">${planData.TEACHING_AIDS || ''}</textarea>
                     </div>
                     
                     <div class="button-group">
@@ -1457,6 +2212,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 </form>
             `;
             openModal(editModal);
+            
+            // Add form submission handler for edit form
+            const editForm = document.getElementById('editForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = 'Saving...';
+                        // Re-enable after 5 seconds as fallback
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Save Changes';
+                        }, 5000);
+                    }
+                });
+            }
         }
 
         // --- DELETE BUTTON ---
